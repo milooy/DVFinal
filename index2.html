@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>D3: Introducing the clipping path</title>
+		<script type="text/javascript" src="d3/d3.v3.js"></script>
+		<link href='http://fonts.googleapis.com/css?family=Lato:300,400|Bowlby+One+SC' rel='stylesheet' type='text/css'>
+		<style type="text/css">
+			body {
+				background-color: #212121;
+				/* text-align: center; */
+			}
+			#title {
+				font-family: 'Bowlby One SC', cursive;
+				font-size: 4em;
+				color: #ffffff;
+				text-align: center;
+			}
+			.crimes {
+				font-family: 'Bowlby One SC', cursive;
+				font-size: 2em;
+				color: white;
+				text-align: center;
+			}
+			.crimes p {
+				display: inline-block;
+			}
+
+			.svgs {
+				text-align: center;
+			}
+	
+
+			}
+			#tip {
+				font-family: 'Lato';
+				font-size: 20pt;
+				color:#ffffff;
+			}
+		
+		</style>
+		
+	</head>
+	<body>
+		<p id="title">Violent Crime Rates by US State</p>
+		<div class="p" id="p1" style="color:white">율무</div>
+		<div id="tip" style="color:white">arrests per 100,000 residents for assault, murder, and rape in each of the 50 US states in 1973.</div>
+		<div class="crimes">
+			<p class="Murder">Murder</p>
+			<p class="Assault">Assault</p>
+			<p class="Rape">Rape</p>						
+		</div>
+		 <div class="svgs">
+		 	<span class="light txt">light</span><br>
+			 <svg id="svg"></svg>			 
+		 </div>
+		 
+		<div class="p" id="p1">율무</div>
+		
+
+	
+		<script type="text/javascript">
+			
+			
+			var w = 450
+			var h = 200
+			
+			
+			document.getElementById("p1").onclick = function(){ init("./data/USArrests.csv") };
+
+			
+			var bars = function(data)
+			{
+				
+				//데이터별 max값을 받아옴
+			    max = d3.max(data, function(d) 
+			    {
+			        return d.value
+			    })
+			
+			   //스케일
+			    y = d3.scale.linear()
+			        .domain([0, max])
+			        .range([0, h])
+			
+			    x = d3.scale.ordinal()
+			        .domain(d3.range(data.length))
+			        .rangeBands([0, w], .2)
+			
+				//가져오기
+			    var vis = d3.select("#barchart")
+			    var bars = vis.selectAll("rect.bar").data(data)
+			
+			    //update
+			    bars
+			        .attr("fill", "#ffcd46")
+			        .attr("stroke", "#ffcd46")
+			
+			    //enter
+			    bars.enter()
+			        .append("svg:rect")
+			        .attr("class", "bar")
+			        .attr("fill", "#ffcd46")
+			        .attr("stroke", "#ffcd46")
+			
+			
+			    //exit 
+			    bars.exit()
+			        .remove()
+			
+			
+			    //apply to everything (enter and update)
+			    bars
+			        .attr("stroke-width", 4)
+			        .attr("height", function(d,i) 
+			        {
+			            return y(d.value);
+			        })
+			        .attr("width", x.rangeBand())
+			        .attr("transform", function(d,i) {
+			            return "translate(" + [x(i), h - y(d.value)] + ")"
+			        })
+			
+			}
+			
+			
+			    var svg = d3.select("#svg")
+			        .attr("width", w+100)
+			        .attr("height", h+100)
+			   
+			    svg.append("svg:rect")
+			        .attr("width", "100%")
+			        .attr("height", "100%")
+			        .attr("fill", "#ea8673")
+			
+			    svg.append("svg:g")
+			        .attr("id", "barchart")
+			        .attr("transform", "translate(50,50)")
+			        
+			function init(fileRoot)
+			{
+		        
+			    
+			    trans_csv(fileRoot);
+			    
+			}
+						
+			var trans_csv = function(source) {
+			    d3.csv(source, function(data)
+			    {
+			        dataLight = data.map(function(d)
+			        {
+			            Murder = +d.Murder
+			            return {
+			                "value":Murder
+			            }
+			        })
+			        
+			        bars(dataLight);		        
+			    })
+			}
+		</script>
+	</body>
+</html>
